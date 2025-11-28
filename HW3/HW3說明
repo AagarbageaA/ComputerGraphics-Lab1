@@ -1,0 +1,234 @@
+
+NCU WMLAB XRLAB
+
+Computer Graphics Assignments - Lab 3
+
+Try  HackMD Logo HackMD
+CG Assignments - Lab 3
+Deadline:
+NCU: 2024/12/09 23:30
+NYCU: 2024/12/12 22:22
+
+Late submission will not be scored.
+
+Contact TA (jcxyis@g.ncu.edu.tw) if you have any questions.
+
+For this assignment, you will be completing a small 3D rendering engine.
+
+We have prepared the code boilerplate. you'll need to complete some missing code.
+
+Download
+Template Code:
+https://github.com/JCxYIS/ComputerGraphics_Yeh/tree/Lab3
+
+Introduction
+After running the code, you will see some buttons and panels on the screen. From left to right, the buttons function as:
+
+Load a .obj 3D model file.
+Enable Debug Mode.
+The panels, from left to right, are
+
+Canvas
+Hierarchy panel
+Inspector panel
+When you click on the load button, it will create a window for you to select a obj file.
+
+We have already provided some example 3D models for testing. (Located in ~/data/Meshes/) You can also try importing your own model, just to remember the 3D model need to be in obj format.
+
+Pressing the debug button will toggle the debug lines, which show the vertices of the models.
+
+Precondition
+First, you need to paste your code you have written from your previous assignments. We have marked the parts you need to paste (TODO HW1 or TODO HW2) in these files:
+
+util
+Matrix4
+Once completed, you should be able to import your obj model into the program.
+
+image
+image
+Top: Before pasting the code | Bottom: After pasting the code
+(Mesh: cube)
+
+Rules
+Usage of the following built-in functions is prohibited:
+
+fill(color);
+translate(x,y,z);
+scale(x,y,z);
+rotateX(t);
+rotateY(t);
+rotateZ(t);
+However, the following cases are permitted:
+
+You want to create GUI panels
+Usage any external library is also prohibited.
+
+Plagiarism is strictly prohibited.
+
+Tasks
+Rotation Matrix (Y-axis)
+Difficulty : ★
+
+Matrix4::makeRotY(float a)
+Given a scalar 
+, return the transformation matrix representation of rotation factor 
+ (around y-axis).
+
+Note we use the different coordinate system with some other systems. As we adapt Y-axis to represent up and down, while some systems use z-axis.
+
+Matrix4::makeRotX(float a)
+Difficulty : ★
+
+Matrix4::makeRotX(float a)
+Likewise. Try implement transformation matrix of rotating along x-axis.
+
+Of those three rotation matrices, can you tell which is yaw, pitch and row?
+
+Model Transformation (Model Matrix)
+Difficulty : ★☆
+
+GameObject::localToWorld()
+Now we've got transform.rotation, transform.scale and transform.position, how to convert them into homogeneous space (model matrix), which is Matrix4?
+
+Once you complete the steps above, you should be able to control the 3D models in the inspector.
+
+cghw3-1
+
+Camera Transformation (View Matrix)
+Difficulty : ★★
+
+Camera::setPositionOrientation(Vector3 pos, Vector3 lookat)
+Given the camera's position (pos) and the position it is looking at (lookat), complete the view(eye) matrix of the camera.
+
+Perspective Rendering (Projection Matrix)
+Difficulty : ★★☆
+
+Camera::setSize(int w, int h, float n, float f)
+This method is implement in the Camera class.You need to complete the projection matrix in this section.
+
+Once you complete the steps above, you should be able to control the 3D models freely in the inspector.
+
+cghw3-2
+
+Depth Buffer
+Difficulty : ★★
+
+util::getDepth(float x, float y, Vector3[] vertex )
+Given a point 
+ and an array of vertices representing a face (Triangle).
+You need to calculate the depth (
+) on the triangle based on the positions x and y.
+
+Once you have completed the getDepth function, the model will be painted with depth buffer.
+
+image
+
+The result might not be so obvious. Why?
+
+Camera Control
+Difficulty : ★★
+
+HW3::cameraControl()
+Here, you need to implement the functionality to control the camera.
+You can choose either using the keyboard or mouse to move the camera.
+This task is relatively flexible, you can implement the camera movement whatever you like.
+
+Backculling
+Difficulty : ★★
+
+GameObject::debugDraw()
+Notice we can still see the other side of the model, which shall be blocked by the face we are looking at.
+
+To achieve this, you have to implement "backculling" in GameObject::DebugDraw function, you have implement an algorithm that culls the faces that are facing away from the camera. If a face is oriented away from the camera, it should be removed or skipped during the rendering stage.
+
+image 
+image
+
+Left: Before backculling | Right: After backculling
+
+Bonus: 3D Clipping
+Difficulty : ★★★
+
+We can observer that the model will still be rendered outside of the canvas.
+
+Here you will have to implement 3D clipping. you need to clip the line segments that extend beyond the boundaries in the clipping space.
+
+You have to implement this functionality in GameObject class.
+
+There are six planes in the clipping space that require clipping.
+
+image 
+image
+
+Left: Before 3D Clipping | Right: After 3D Clipping
+
+Grading
+FUNDAMENTAL
+
+(40%) Correctly implement the 3 matrices.
+(20%) Correctly implement depth buffer.
+(20%) Correctly implement camera control.
+(20%) Correctly implement backculling.
+BONUS 
+
+
+[+1.5 Semester Score] Successfully implement 3D Clipping
+Note
+
+(The report credits 25% for each tasks)
+
+Submission
+After completing the assignment, please attach a README.md file and write down
+
+which tasks you have completed
+some screenshots of your work
+how you completed these tasks (explain key code snippets, algorithms used or your finding, etc.)
+If you have completed the assignment with the assistance of LLMs (e.g. ChatGPT, Gemini, Claude, Llama, TARS, etc.), please also briefly describe how you utilize them in your report. (Using these and reporting honestly will not affect your score.)
+
+Ensure that your code works in your environment before submission, otherwise, it will be considered non-functional and receive a score of 0. 
+
+
+You can submit your work either by sending a github link of your project (be sure to set it to public), or simply attaching a zip archive (format: {StudentID}_HW3.zip).
+
+What's Next?
+Implementing your own program step by step, from a single line to a fully functional rendering engine. Right now you can import your own 3D model, transforming whatever you want. It is quite touching, right?
+
+For the next lab, it will be our final lab of the semester, yet it is the most challenging one. You will be extending the engine you have made so far, to support custom lightsing and shading.
+
+Take a deep breath, keep up the good work!
+
+452422582_447518214931878_6377374770986024612_n
+Keywords for the next lab: Lighting, Material, Shader
+
+References: Framework Overview
+Vector3
+Basic vector operations are provided, including addition, subtraction, multiplication, and dot product operations. You can instance it any where in any situation.
+
+Matrix4
+Basic matrix operations are provided, including addition, subtraction, multiplication, rotation and so on. You can instance it any where in any situation.
+
+Camera
+In the Camera class, various information about the camera is stored, including height, width, near plane, far plane, position, orientation, etc. It also provides the view matrix and projection matrix for use.
+
+GameObject
+The GameObject class must be provided with a Mesh class and Shader class. The GameObject is responsible for rendering the object, and it includes a Shader that will be introduced below.
+
+Mesh
+The Mesh class provides the basic properties of an object, including vertex positions, UV coordinates, normal vectors, and other information. When constructing it, you must provide the file location, and the file type must be in the OBJ format.
+
+Shader
+Shaders are divided into two types: Vertex Shader and Fragment Shader. In the Vertex Shader, you need to output the position of vertices to the GameObject. The GameObject will perform vertex culling and interpolation, and then pass the information to the Fragment Shader. In the Fragment Shader, you must calculate the color for each pixel and return it to the renderer buffer.
+
+Button
+The Button inherits from the Box class, providing methods such as checking the area and changing the color. When using the run function, you need to pass an anonymous function that allows you to perform specific functions that you provide.
+
+ShapeButton
+The ShapeButton allows you to return a class of Renderer, enabling you to change the current drawing mode on the canvas.
+
+最後編輯： 
+ 
+NCU WMLAB XRLAB
+無線網路多媒體實驗室 & 元宇宙智慧醫療實驗室
+0
+369
+發表於  HackMD
