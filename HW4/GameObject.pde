@@ -1,0 +1,151 @@
+public class GameObject {
+    Transform transform;
+    Mesh mesh;
+    String name;
+    Material material;
+    MaterialEnum me;
+
+    GameObject() {
+        transform = new Transform();
+    }
+
+    GameObject(String fname) {
+        transform = new Transform();
+        setMesh(fname);
+        String[] sn = fname.split("\\\\");
+        name = sn[sn.length - 1].substring(0, sn[sn.length - 1].length() - 4);
+        material = new PhongMaterial();
+        me = MaterialEnum.PM;
+
+    }
+
+    void reset() {
+        transform.position.setZero();
+        transform.rotation.setZero();
+        transform.scale.setOnes();
+    }
+
+    void setMesh(String fname) {
+        mesh = new Mesh(fname);
+    }
+
+    void Draw() {
+       
+        if(mesh==null) return;
+        for (int i=0; i<mesh.triangles.size(); i++) {
+            Triangle triangle = mesh.triangles.get(i);
+            Vector3[] position = triangle.verts;
+            Vector4[][] result = material.vertexShader(triangle,localToWorld());
+            
+            Vector4[] gl_Position = result[0];
+            Vector3[] s_Position = new Vector3[3];
+            for (int j = 0; j<gl_Position.length; j++) {
+                s_Position[j] = gl_Position[j].homogenized();
+            }
+            Vector3[] boundbox = findBoundBox(s_Position);
+            float minX = map(min( max(boundbox[0].x, -1.0 ), 1.0), -1.0, 1.0, 0.0, renderer_size.z - renderer_size.x);
+            float maxX = map(min( max(boundbox[1].x, -1.0 ), 1.0), -1.0, 1.0, 0.0, renderer_size.z - renderer_size.x);
+            float minY = map(min( max(boundbox[0].y, -1.0 ), 1.0), -1.0, 1.0, 0.0, renderer_size.w - renderer_size.y);
+            float maxY = map(min( max(boundbox[1].y, -1.0 ), 1.0), -1.0, 1.0, 0.0, renderer_size.w - renderer_size.y);
+            
+            for (int y = int(minY); y < maxY; y++) {
+                for (int x = int(minX); x < maxX; x++) {
+                    // Sample at pixel center (x+0.5, y+0.5) as per rasterization algorithm
+                    float px = x + 0.5;
+                    float py = y + 0.5;
+                    float rx=map(px, 0.0 , renderer_size.z - renderer_size.x, -1, 1);
+                    float ry=map(py, 0.0, renderer_size.w - renderer_size.y, -1, 1);
+                    if (!pnpoly(rx, ry, s_Position)) continue;
+                    int index = int((renderer_size.w - renderer_size.y) - y - 1) * int(renderer_size.z - renderer_size.x) + x;
+                    
+                    // Perspective-correct barycentric coordinates
+                    float[] abg = barycentric(new Vector3(rx,ry,0.0) , gl_Position);
+                    
+                    // Perspective-correct depth interpolation
+                    // According to algorithm: z = (sum of alpha_i * z_i / w_i) / (sum of alpha_i / w_i)
+                    // The barycentric function already returns perspective-corrected weights
+                    // So we can directly use them to interpolate clip-space z/w
+                    float z_over_w_0 = gl_Position[0].z / gl_Position[0].w;
+                    float z_over_w_1 = gl_Position[1].z / gl_Position[1].w;
+                    float z_over_w_2 = gl_Position[2].z / gl_Position[2].w;
+                    float z_ndc = abg[0] * z_over_w_0 + abg[1] * z_over_w_1 + abg[2] * z_over_w_2;
+                    
+                    // Use NDC z for depth test (already in [0,1] or [-1,1] depending on projection)
+                    float z = s_Position[0].z * abg[0] + s_Position[1].z * abg[1] + s_Position[2].z * abg[2];
+                    
+                    // Interpolate varying attributes (already perspective-corrected by barycentric)
+                    Vector4[] varing = new Vector4[result.length -1];
+                    for(int m=0;m<varing.length;m++){
+                         varing[m] = interpolation(abg , result[m+1]);
+                    }
+                    
+                    // Pass z_ndc (perspective-correct depth) for visualization, z for depth test
+                    Vector4 c = material.fragmentShader(new Vector3(rx,ry,z_ndc),varing);
+                    
+                    if (GH_DEPTH[index] > z) {
+                        GH_DEPTH[index] = z;
+                        renderBuffer.pixels[index] = color(c.x * 255, c.y*255, c.z*255);
+                    }
+                }
+            }
+        }        
+        update();
+    }
+
+    void update() {
+    }
+
+    void debugDraw() {
+        Matrix4 MVP = main_camera.Matrix().mult(localToWorld());
+        if (mesh == null)
+            return;
+        for (int i = 0; i < mesh.triangles.size(); i++) {
+            Triangle triangle = mesh.triangles.get(i);
+            Vector3[] img_pos = new Vector3[3];
+            for (int j = 0; j < 3; j++) {
+                img_pos[j] = MVP.mult(triangle.verts[j].getVector4(1.0)).homogenized();
+            }
+
+            for (int j = 0; j < img_pos.length; j++) {
+                img_pos[j] = new Vector3(map(img_pos[j].x, -1, 1, renderer_size.x, renderer_size.z),
+                        map(img_pos[j].y, 1, -1, renderer_size.y, renderer_size.w), img_pos[j].z);
+            }
+
+            CGLine(img_pos[0].x, img_pos[0].y, img_pos[1].x, img_pos[1].y);
+            CGLine(img_pos[1].x, img_pos[1].y, img_pos[2].x, img_pos[2].y);
+            CGLine(img_pos[2].x, img_pos[2].y, img_pos[0].x, img_pos[0].y);
+        }
+    }
+
+    String getGameObjectName() {
+        return name;
+    }
+
+    Matrix4 localToWorld() {
+        // TODO HW3
+        // You need to calculate the model Matrix here.
+        // Model Matrix = Translation * RotationY * RotationX * RotationZ * Scale
+        
+        Matrix4 translationMatrix = Matrix4.Trans(transform.position);
+        Matrix4 rotationY = Matrix4.RotY(transform.rotation.y);
+        Matrix4 rotationX = Matrix4.RotX(transform.rotation.x);
+        Matrix4 rotationZ = Matrix4.RotZ(transform.rotation.z);
+        Matrix4 scaleMatrix = Matrix4.Scale(transform.scale);
+        
+        // Apply transformations in order: Scale -> RotZ -> RotX -> RotY -> Translate
+        Matrix4 modelMatrix = translationMatrix.mult(rotationY).mult(rotationX).mult(rotationZ).mult(scaleMatrix);
+        
+        return modelMatrix;
+    }
+
+    Matrix4 worldToLocal() {
+        return Matrix4.Scale(transform.scale.inv()).mult(Matrix4.RotZ(-transform.rotation.z))
+                .mult(Matrix4.RotX(-transform.rotation.x)).mult(Matrix4.RotY(-transform.rotation.y))
+                .mult(Matrix4.Trans(transform.position.mult(-1)));
+    }
+
+    Vector3 forward() {
+        return (Matrix4.RotZ(transform.rotation.z).mult(Matrix4.RotX(transform.rotation.y))
+                .mult(Matrix4.RotY(transform.rotation.x)).zAxis()).mult(-1);
+    }
+}

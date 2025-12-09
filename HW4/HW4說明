@@ -1,0 +1,193 @@
+CG Assignments - Lab 4
+Deadline:
+NCU: 2024/12/31 23:30
+NYCU: 2024/12/31 23:30
+
+Late submission will not be scored.
+
+Contact TA (jcxyis@g.ncu.edu.tw) if you have any questions.
+
+This is it, your final assignment. Ready for the challenge?
+
+For this assignment, you will need to compute barycentric coordinate on a triangular surface and complete several color shaders, including Flat shading, Ground Shading and Phong Shading.
+
+We have prepared the code boilerplate. you'll need to complete some missing code.
+
+Template code：under folder of "HW4/"
+
+Introduction
+The interface and the controls are almost the same as the previous lab(HW3). Except for some changes:
+
+The camera and light are now GameObject, which means they are adjustable in the hierarchy, these objects will be automatically added to the scene on startup.
+Notice the material button? You can switch between different shaders which you'll be implementing later.
+You can now change the color of the light and the object. Further implementation is needed.
+You can also adjust the intensity of light.
+Precondition
+First, you need to paste your code you have written from your previous assignments. We have marked the parts you need to paste (TODO HW1, TODO HW2 or TODO HW3) in these files:
+
+HW4
+Camera
+GameObject
+util
+If you paste the code correctly, you should be able to upload the obj model into the program. Currently you could only see the shadow of the models.
+
+
+
+Rules
+Usage of the following built-in functions is prohibited:
+
+
+
+
+
+
+fill(color);
+translate(x,y,z);
+scale(x,y,z);
+rotateX(t);
+rotateY(t);
+rotateZ(t);
+However, the following cases are permitted:
+
+You want to create GUI panels
+Usage any external library is also prohibited.
+
+Plagiarism is strictly prohibited.
+
+Tasks
+Barycentric Coordinates
+Difficulty : ★★★☆
+
+util::barycentric(Vector3 P, Vector4[] verts)
+For this task, you need to calculate the barycentric coordinates of the point.
+Given a the three vertices inside a triangle 
+𝐴
+,
+𝐵
+,
+𝐶
+ (which is passed in as Vector4 
+𝐴
+𝑊
+,
+𝐵
+𝑊
+,
+𝐶
+𝑊
+ but at the beginning of the code we have converted back to Vector3 for you) and a point 
+𝑃
+ inside the triangle, please interpret these values as the barycentric coordinates 
+𝛼
+,
+𝛽
+,
+𝛾
+ of that triangle.
+
+The GameObject will use this function to interpolate the values returned from the vertex shader and pass them to the fragment shader.
+
+Please note, since we are using perspective coordinates, when calculating barycentric coordinates you should perform Perspective-Correct Interpolation on the results; otherwise your answer might be incorrect.
+
+
+Left: incorrect | Right: correct
+
+Further reading:
+HW4\图形学基础之透视校正插值-CSDN博客.pdf
+
+Phong Shading
+Difficulty : ★★★★☆
+
+Material::PhongMaterial
+ColorShader::PhongVertexShader
+ColorShader::PhongFragmentShader
+In this part, we are going to start writing our own shader.
+
+For Phong shader, we have demonstrated how to use and pass relevant variables, We also have prepared the variables you might need (world coordinates, world normal vectors, light sources, camera positions, point attribute, etc.)
+
+Please use these values to calculate the lighting at that point and return to the GameObject for rendering.
+
+If you need additional requirements, you can modify the code in Material or other part as well, just remember to mention in your report, and follow the rules of course.
+
+Once you finished it, you can see the light interact with the object.
+
+
+
+Flat Shading
+Difficulty : ★★★★☆
+
+Material::FlatMaterial
+ColorShader::FlatVertexShader
+ColorShader::FlatFragmentShader
+Now please complete flat shading.
+
+We have provided basic framework. Please follow the example of Phong Shading, pass in the necessary objects to implement Flat shading.
+
+Tracing the framework code is required. Make sure to do that and write down your discovery in your report.
+
+
+
+Gouraud Shading
+Difficulty : ★★★★☆
+
+Material::GouraudMaterial
+ColorShader::GouraudVertexShader
+ColorShader::GouraudFragmentShader
+Keep going!
+Now please complete Gouraud shading.
+
+
+
+What's the difference between these 3 shading methods?
+
+Bonus: You want more? Show me what you got!
+Difficulty : ？？？
+
+As the bonus, you can make any supplement for this assignment. You can implement whatever new features you want, finding bugs in this program or write a review article analyzing the architecture of the whole project.
+
+Since this is the last lab of the course, this task is very open, use your knowledge learnt from this course, and use your imagination! You will get your extra score depending on how hard / how cool your work is!
+
+No idea? We've also prepared another bonus task for you.
+
+Bonus: Texture Shader
+Difficulty : ★★★★★
+
+For this task, please inherit a new material and shaders on your own to complete the texture shader. It should be able to load in the texture and apply it to objects.
+We have provided the UV coordinates in Mesh, which can be directly passed into the shader.
+
+
+
+Elon_Musk_head / cat
+
+Texture files are placed under data/textures/ directory.
+
+Score
+Each assignment's grading is divided into two parts: fundamentals and advanced.
+
+Grading
+FUNDAMENTAL
+
+(25%) Correctly implement the barycentric.
+(25%) Correctly implement Phong Shading.
+(25%) Correctly implement Flat Shading.
+(25%) Correctly implement Gouraud Shading.
+BONUS 
+
+
+[+1.5 Semester Score] Successfully implement Texture Shading OR Done something COOL AND GOOD.
+Note
+
+(The report credits 25% for each tasks)
+
+Submission
+After completing the assignment, please attach a README.md file and write down
+
+which tasks you have completed
+some screenshots of your work
+how you completed these tasks (explain key code snippets, algorithms used or your finding, etc.)
+If you have completed the assignment with the assistance of LLMs (e.g. ChatGPT, Gemini, Claude, Llama, Hatsune Miku, etc.), please also briefly describe how you utilize them in your report. (Using these and reporting honestly will not affect your score.)
+
+Ensure that your code works in your environment before submission, otherwise, it will be considered non-functional and receive a score of 0. 
+
+
+You can submit your work either by sending a github link of your project (be sure to set it to public), or simply attaching a zip archive (format: {StudentID}_HW4.zip).
