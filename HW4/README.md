@@ -131,8 +131,7 @@
 - 討論多光源累加、UI 同步等架構設計
 - 參考最佳化建議（如 Z-Buffer、裁剪）
 
-AI 主要提供思路與參考，所有程式碼都經過我親自驗證、測試與理解，並根據實際情況調整。
 
 ---
 
-<!-- 架構分析已移至 Architecture_Analysis.md -->
+<!-- 架構分析在 Architecture_Analysis.md -->
